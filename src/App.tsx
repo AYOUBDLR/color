@@ -21,7 +21,7 @@ import {
 import confetti from 'canvas-confetti';
 import Battery from './components/Battery';
 
-type Step = 'landing' | 'identification' | 'verifying' | 'action_required' | 'offers_tasks' | 'premium_customizer';
+type Step = 'landing' | 'verifying' | 'action_required' | 'offers_tasks' | 'premium_customizer';
 
 interface GradientPreset {
   name: string;
@@ -41,8 +41,6 @@ const PRESETS: GradientPreset[] = [
 
 export default function App() {
   const [step, setStep] = useState<Step>('landing');
-  const [icloudId, setIcloudId] = useState('');
-  const [icloudError, setIcloudError] = useState('');
   
   // Verification steps status
   const [verificationProgress, setVerificationProgress] = useState(0);
@@ -86,22 +84,6 @@ export default function App() {
       return () => timers.forEach(t => clearTimeout(t));
     }
   }, [step]);
-
-  // Validation function for iCloud ID
-  const handleVerifyId = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!icloudId.trim()) {
-      setIcloudError('Please enter your iCloud ID');
-      return;
-    }
-    // iCloud IDs are usually emails or usernames. Simple validation.
-    if (icloudId.trim().length < 4) {
-      setIcloudError('The iCloud ID is too short');
-      return;
-    }
-    setIcloudError('');
-    setStep('verifying');
-  };
 
   // Survey Answer Handler
   const handleSurveyAnswer = (answer: string) => {
@@ -291,8 +273,6 @@ export default function App() {
   // Reset helper
   const handleReset = () => {
     setStep('landing');
-    setIcloudId('');
-    setIcloudError('');
     setVerificationProgress(0);
     setSurveyAnswers(['', '', '']);
     setSurveyStep(0);
@@ -373,192 +353,94 @@ export default function App() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
                 >
-                  Customize your iPhone's Battery Color with unique animations, gradients, and glowing effects.
+                  Customize your device's Battery Color with unique animations, gradients, and glowing effects.
                 </motion.p>
 
-                <motion.button
-                  onClick={() => setStep('identification')}
-                  className="inline-flex items-center gap-3 bg-white text-black font-semibold font-display px-8 py-4 rounded-full shadow-lg hover:bg-neutral-100 transition-all active:scale-95 cursor-pointer text-sm sm:text-base"
-                  whileHover={{ y: -2, boxShadow: '0 10px 25px -5px rgba(255, 255, 255, 0.15)' }}
-                  id="btn-activate-ios"
-                >
-                  <Apple className="w-5 h-5 fill-black" />
-                  Activate for iOS
-                </motion.button>
-              </motion.div>
-            )}
-
-            {/* 2. IDENTIFICATION STEP */}
-            {step === 'identification' && (
-              <motion.div
-                key="identification"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.4 }}
-                className="text-center flex flex-col items-center w-full"
-                id="step-identification"
-              >
-                <Battery variant="landing" percentage={80} />
-
-                <h1 className="font-display text-4xl sm:text-5xl font-extrabold tracking-tight text-white mt-6 mb-2">
-                  Battery Color
-                </h1>
-
-                <span className="font-display text-sm sm:text-base font-semibold tracking-wider text-neutral-400 uppercase bg-neutral-900/50 px-3 py-1 rounded-full border border-neutral-800/50 mb-4">
-                  Personalization Pack
-                </span>
-
-                <p className="text-sm sm:text-base text-neutral-400 max-w-md mx-auto leading-relaxed mb-8 px-4">
-                  Customize your iPhone's Battery Color with unique animations, gradients, and glowing effects.
-                </p>
-
-                {/* Input form */}
-                <form onSubmit={handleVerifyId} className="w-full max-w-sm px-4 flex flex-col gap-3" id="icloud-form">
-                  <div className="relative" id="input-container">
-                    <input
-                      type="text"
-                      value={icloudId}
-                      onChange={(e) => {
-                        setIcloudId(e.target.value);
-                        if (icloudError) setIcloudError('');
-                      }}
-                      placeholder="iCloud ID"
-                      className="w-full bg-[#161618]/80 border border-neutral-800 focus:border-neutral-700 text-white placeholder-neutral-500 rounded-2xl py-4 pl-5 pr-12 text-sm sm:text-base focus:outline-none focus:ring-1 focus:ring-neutral-700 transition-all backdrop-blur-sm"
-                      id="icloud-id-input"
-                    />
-                    <User className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
-                  </div>
-
-                  {icloudError && (
-                    <motion.p 
-                      className="text-rose-500 text-xs font-medium text-left ml-2"
-                      initial={{ opacity: 0, y: -5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      id="icloud-error-text"
-                    >
-                      {icloudError}
-                    </motion.p>
-                  )}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full max-w-sm sm:max-w-md px-4">
+                  <motion.button
+                    onClick={() => setStep('verifying')}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-white text-black font-semibold font-display px-6 py-4 rounded-full shadow-lg hover:bg-neutral-100 transition-all active:scale-95 cursor-pointer text-sm sm:text-base"
+                    whileHover={{ y: -2, boxShadow: '0 10px 25px -5px rgba(255, 255, 255, 0.15)' }}
+                    id="btn-activate-ios"
+                  >
+                    <Apple className="w-5 h-5 fill-black" />
+                    Download for iOS
+                  </motion.button>
 
                   <motion.button
-                    type="submit"
-                    disabled={!icloudId.trim()}
-                    className={`w-full font-semibold font-display py-4 rounded-2xl transition-all cursor-pointer text-sm sm:text-base ${
-                      icloudId.trim() 
-                        ? 'bg-[#1c1c1e] border border-neutral-800 text-white hover:bg-[#2c2c2e]' 
-                        : 'bg-[#1c1c1e]/40 text-neutral-600 border border-neutral-900/50 cursor-not-allowed'
-                    }`}
-                    whileHover={icloudId.trim() ? { y: -1 } : {}}
-                    id="btn-verify-id"
+                    onClick={() => setStep('verifying')}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-[#1c1c1e] text-white border border-neutral-800 font-semibold font-display px-6 py-4 rounded-full shadow-lg hover:bg-[#2c2c2e] transition-all active:scale-95 cursor-pointer text-sm sm:text-base"
+                    whileHover={{ y: -2, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)' }}
+                    id="btn-activate-android"
                   >
-                    Verify
+                    <Smartphone className="w-5 h-5 text-emerald-400" />
+                    Download for Android
                   </motion.button>
-                </form>
+                </div>
               </motion.div>
             )}
 
-            {/* 3. VERIFYING STEPS */}
+            {/* 2. VERIFYING / CONNECTING STEP */}
             {step === 'verifying' && (
               <motion.div
                 key="verifying"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center flex flex-col items-center w-full px-4"
+                className="text-center flex flex-col items-center justify-center w-full px-4 py-6"
                 id="step-verifying"
               >
-                {/* Changes battery to beautiful verifying custom cyan/blue color */}
-                <Battery variant="verifying" />
-
-                <h1 className="font-display text-4xl sm:text-5xl font-extrabold tracking-tight text-white mt-6 mb-2">
-                  Battery Color
-                </h1>
-
-                <span className="font-display text-sm sm:text-base font-semibold tracking-wider text-cyan-400 uppercase bg-cyan-950/30 px-3 py-1 rounded-full border border-cyan-900/30 mb-8">
-                  System Verification
-                </span>
-
-                {/* Staggered progress panel */}
-                <div className="w-full max-w-sm bg-[#161618]/50 border border-neutral-900 rounded-3xl p-6 text-left flex flex-col gap-5 backdrop-blur-md" id="progress-panel">
-                  
-                  {/* Step 1 */}
-                  <div className="flex items-center gap-4" id="step-row-1">
-                    <div className="relative flex items-center justify-center w-6 h-6">
-                      {verificationProgress > 0 ? (
-                        <motion.div 
-                          className="bg-emerald-500/20 text-emerald-400 p-0.5 rounded-full border border-emerald-500/40"
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                        >
-                          <Check className="w-4 h-4" />
-                        </motion.div>
-                      ) : (
-                        <div className="w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
-                      )}
+                {/* Icon with glowing green rounded frame matching reference image */}
+                <motion.div 
+                  className="relative mb-8"
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl p-[3px] bg-gradient-to-tr from-emerald-400 via-teal-300 to-cyan-400 shadow-2xl shadow-emerald-500/30 flex items-center justify-center">
+                    <div className="w-full h-full bg-[#121214] rounded-[21px] flex items-center justify-center overflow-hidden relative border border-neutral-800">
+                      <Battery variant="verifying" percentage={85} />
                     </div>
-                    <span className={`text-xs sm:text-sm font-medium transition-all duration-300 ${verificationProgress > 0 ? 'text-emerald-400' : 'text-neutral-200 font-semibold'}`}>
-                      Connecting to Apple services...
-                    </span>
                   </div>
+                </motion.div>
 
-                  {/* Step 2 */}
-                  <div className="flex items-center gap-4" id="step-row-2">
-                    <div className="relative flex items-center justify-center w-6 h-6">
-                      {verificationProgress > 1 ? (
-                        <motion.div 
-                          className="bg-emerald-500/20 text-emerald-400 p-0.5 rounded-full border border-emerald-500/40"
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                        >
-                          <Check className="w-4 h-4" />
-                        </motion.div>
-                      ) : verificationProgress === 1 ? (
-                        <div className="w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <div className="w-3.5 h-3.5 rounded-full border-2 border-neutral-800" />
-                      )}
-                    </div>
-                    <span className={`text-xs sm:text-sm font-medium transition-all duration-300 ${
-                      verificationProgress > 1 
-                        ? 'text-emerald-400' 
-                        : verificationProgress === 1 
-                          ? 'text-neutral-200 font-semibold' 
-                          : 'text-neutral-600'
-                    }`}>
-                      Verifying iCloud account...
-                    </span>
+                {/* CONNECTING Title */}
+                <motion.h1 
+                  className="font-display text-3xl sm:text-4xl font-black tracking-[0.25em] text-white uppercase mb-8"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  CONNECTING
+                </motion.h1>
+
+                {/* Progress Bar Container */}
+                <div className="w-full max-w-xs sm:max-w-sm mb-8">
+                  <div className="w-full bg-[#1e2321] rounded-full h-3 p-0.5 overflow-hidden border border-emerald-900/40 shadow-inner">
+                    <motion.div 
+                      className="bg-gradient-to-r from-emerald-400 to-teal-300 h-full rounded-full shadow-lg shadow-emerald-500/50"
+                      initial={{ width: '10%' }}
+                      animate={{ 
+                        width: verificationProgress === 0 ? '30%' : verificationProgress === 1 ? '70%' : '100%' 
+                      }}
+                      transition={{ duration: 1.2, ease: "easeInOut" }}
+                    />
                   </div>
-
-                  {/* Step 3 */}
-                  <div className="flex items-center gap-4" id="step-row-3">
-                    <div className="relative flex items-center justify-center w-6 h-6">
-                      {verificationProgress > 2 ? (
-                        <motion.div 
-                          className="bg-emerald-500/20 text-emerald-400 p-0.5 rounded-full border border-emerald-500/40"
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                        >
-                          <Check className="w-4 h-4" />
-                        </motion.div>
-                      ) : verificationProgress === 2 ? (
-                        <div className="w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <div className="w-3.5 h-3.5 rounded-full border-2 border-neutral-800" />
-                      )}
-                    </div>
-                    <span className={`text-xs sm:text-sm font-medium transition-all duration-300 ${
-                      verificationProgress > 2 
-                        ? 'text-emerald-400' 
-                        : verificationProgress === 2 
-                          ? 'text-neutral-200 font-semibold' 
-                          : 'text-neutral-600'
-                    }`}>
-                      Preparing Battery Color configuration...
-                    </span>
-                  </div>
-
                 </div>
+
+                {/* Subtext Status Line matching reference image */}
+                <motion.p 
+                  key={verificationProgress}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="font-mono text-xs sm:text-sm text-neutral-400 flex items-center justify-center gap-1.5"
+                >
+                  <span className="text-emerald-400 font-bold">&gt;</span>{' '}
+                  {verificationProgress === 0 && 'Locating compatible package on server...'}
+                  {verificationProgress === 1 && 'Connecting to Apple services...'}
+                  {verificationProgress >= 2 && 'Preparing Battery Color configuration...'}
+                </motion.p>
               </motion.div>
             )}
 
